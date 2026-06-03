@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the requested path is a real file or folder, load it directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Otherwise, pass the endpoint to index.php cleanly
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. If the request is already pointing to the public folder, don't touch it
+    RewriteCond %{REQUEST_URI} !^/public/ [NC]
+    RewriteCond %{REQUEST_URI} !^/cgo-accountant-api/public/ [NC]
+
+    # 2. Forward everything else safely to the public subdirectory
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
