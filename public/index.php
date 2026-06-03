@@ -1,8 +1,29 @@
 <?php
 // public/index.php
 
+// 🟢 NEW: ENVIRONMENT VARIABLE LOADER FOR CUSTOM MVC
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        return false;
+    }
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue;
+        list($name, $value) = explode('=', $line, 2);
+        $name = trim($name);
+        $value = trim($value);
+        if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
+            putenv(sprintf('%s=%s', $name, $value));
+            $_ENV[$name] = $value;
+            $_SERVER[$name] = $value;
+        }
+    }
+}
+// Execute the loader pointing back to your root directory .env file
+loadEnv(__DIR__ . '/../.env');
+
+
 // 1. 🟢 INSTANT CORS PREFLIGHT GREEN LIGHT
-// This intercepts the browser's hidden check before your router runs
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -26,7 +47,6 @@ $router->add('GET', '/api/reports', 'HomeController@getReports');
 $router->add('POST', '/api/contact', 'HomeController@handleContactSubmit');
 
 // 2. 🟢 SUB-FOLDER STRIPPER 
-// Cleans '/cgo-accountant-api/public/api/contact' down to just '/api/contact'
 $requestUri = $_SERVER['REQUEST_URI'];
 $scriptName = dirname($_SERVER['SCRIPT_NAME']); // Gets '/cgo-accountant-api/public'
 
@@ -34,7 +54,6 @@ if (strpos($requestUri, $scriptName) === 0) {
     $requestUri = substr($requestUri, strlen($scriptName));
 }
 
-// Ensure the URI always starts with a slash and drops extra query parameters
 $requestUri = '/' . ltrim(parse_url($requestUri, PHP_URL_PATH), '/');
 
 // Dispatch the cleaned path request

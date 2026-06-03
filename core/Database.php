@@ -12,10 +12,11 @@ class Database {
      */
     public static function connect() {
         if (self::$instance === null) {
-            $host = 'localhost';
-            $db   = 'cgo_accountant'; // ⚠️ Ensure this matches your XAMPP MySQL database name
-            $user = 'root';
-            $pass = ''; 
+            // 🟢 DYNAMICALLY READ FROM THE .ENV FILE
+            $host    = getenv('DB_HOST') ?: 'localhost';
+            $db      = getenv('DB_NAME') ?: 'cgo_accountant_db'; 
+            $user    = getenv('DB_USER') ?: 'root';
+            $pass    = getenv('DB_PASS') !== false ? getenv('DB_PASS') : ''; 
             $charset = 'utf8mb4';
 
             $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
