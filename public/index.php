@@ -42,9 +42,9 @@ $router = new Router();
 // Keeps your default backend test page active
 $router->add('GET', '/', 'HomeController@index');
 
-// Endpoints for your actual project pages:
-$router->add('GET', '/api/reports', 'HomeController@getReports');
-$router->add('POST', '/api/contact', 'HomeController@handleContactSubmit');
+// 🟢 UPDATED: Endpoints pointed directly to their dedicated controller classes
+$router->add('GET', '/api/reports', 'ReportController@getReports');
+$router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
 
 // 2. 🟢 SUB-FOLDER STRIPPER 
 $requestUri = $_SERVER['REQUEST_URI'];

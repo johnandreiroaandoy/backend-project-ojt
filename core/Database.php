@@ -14,7 +14,7 @@ class Database {
         if (self::$instance === null) {
             // 🟢 DYNAMICALLY READ FROM THE .ENV FILE
             $host    = getenv('DB_HOST') ?: 'localhost';
-            $db      = getenv('DB_NAME') ?: 'cgo_accountant_db'; 
+            $db      = getenv('DB_NAME') ?: 'cgo_accountant'; 
             $user    = getenv('DB_USER') ?: 'root';
             $pass    = getenv('DB_PASS') !== false ? getenv('DB_PASS') : ''; 
             $charset = 'utf8mb4';
