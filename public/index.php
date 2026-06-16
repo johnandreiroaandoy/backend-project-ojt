@@ -1,7 +1,7 @@
 <?php
 // public/index.php
 
-// 🟢 NEW: ENVIRONMENT VARIABLE LOADER FOR CUSTOM MVC
+// 🟢 ENVIRONMENT VARIABLE LOADER FOR CUSTOM MVC
 function loadEnv($path) {
     if (!file_exists($path)) {
         return false;
@@ -23,7 +23,7 @@ function loadEnv($path) {
 loadEnv(__DIR__ . '/../.env');
 
 
-// 1. 🟢 INSTANT CORS PREFLIGHT GREEN LIGHT
+// 1. INSTANT CORS PREFLIGHT GREEN LIGHT
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -35,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// 🟢 ADD THIS LINE: Manually imports your new controller to bypass Composer's autoloader index
+require_once __DIR__ . '/../app/Controllers/UserController.php';
+
 use Core\Router;
 
 $router = new Router();
@@ -42,11 +45,17 @@ $router = new Router();
 // Keeps your default backend test page active
 $router->add('GET', '/', 'HomeController@index');
 
-// 🟢 UPDATED: Endpoints pointed directly to their dedicated controller classes
+// 🟢 ACTIVE API ENDPOINT REGISTRY
 $router->add('GET', '/api/reports', 'ReportController@getReports');
 $router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
 
-// 2. 🟢 SUB-FOLDER STRIPPER 
+// 🟢 NEW: Email Verification endpoint registered to use your exact '@' string notation format
+$router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
+
+$router->add('POST', '/api/verify-email', 'ContactController@verifyEmail');
+
+
+// 2. SUB-FOLDER STRIPPER 
 $requestUri = $_SERVER['REQUEST_URI'];
 $scriptName = dirname($_SERVER['SCRIPT_NAME']); // Gets '/cgo-accountant-api/public'
 
