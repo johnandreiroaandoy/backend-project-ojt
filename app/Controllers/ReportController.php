@@ -24,7 +24,18 @@ class ReportController {
             // $db->query(): Sends a direct read command to MySQL.
             // SELECT...: Fetches specific column variables (title, year, size, file link) from the transparency table.
             // ORDER BY year DESC: Organizes the files automatically from the newest year down to the oldest year.
-            $stmt = $db->query("SELECT title, year, size, href FROM transparency_reports ORDER BY year DESC");
+           $stmt = $db->query("
+             SELECT title, year, size, href
+             FROM transparency_reports
+            ORDER BY year DESC,
+            FIELD(
+                title,
+                'Annual Audit Reports',
+                'Quarterly Financial Statements',
+                'Full Disclosure Policy Compliance Report',
+                'Statement of Receipts and Expenditures'
+              )
+   ");
             
             // $stmt->fetchAll(): Gathers all matching records pulled from MySQL and compiles them into a clean PHP index data list.
             $reports = $stmt->fetchAll();

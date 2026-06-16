@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     
-    <title><?= htmlspecialchars($title) ?></title>
+    <title><?= htmlspecialchars(isset($title) ? $title : 'Home') ?></title>
     
     <style>
         /* body: Styles the entire web page backdrop, setting clean fonts, spacing margins, and a subtle gray background color (#f4f6f9). */
@@ -23,11 +23,11 @@
 <body>
     <div class="card">
         
-        <h1><?= htmlspecialchars($title) ?></h1>
+        <h1><?= htmlspecialchars(isset($title) ? $title : 'Home') ?></h1>
         
         <p>Welcome! Your native PHP Model-View-Controller custom framework is fully functional.</p>
         
-        <div class="badge">System Status: <?= htmlspecialchars($status) ?></div>
+        <div class="badge">System Status: <?= htmlspecialchars(isset($status) ? $status : 'Unknown') ?></div>
         
     </div> </body>
 </html> ```
