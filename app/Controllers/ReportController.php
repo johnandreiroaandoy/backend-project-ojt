@@ -25,7 +25,7 @@ class ReportController {
             // SELECT...: Fetches specific column variables (title, year, size, file link) from the transparency table.
             // ORDER BY year DESC: Organizes the files automatically from the newest year down to the oldest year.
            $stmt = $db->query("
-             SELECT title, year, size, href
+             SELECT title, year, month, size, href
              FROM transparency_reports
             ORDER BY year DESC,
             FIELD(
