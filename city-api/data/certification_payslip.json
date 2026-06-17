@@ -1,0 +1,46 @@
+{
+  "title": "Administrative Division",
+  "subtitle": "Providing structured frontline personnel verifications and financial records processing.",
+  "iconHeader": "📝",
+  "serviceDetails": {
+    "name": "Issuance of Certification of Payslip and Index of Payments of City Government Personnel",
+    "purpose": "Certifications for employee requests of payslips and index of payments for loan applications, retirement, reconciliation, reference, travel, visa application, monitoring, court hearings and other purposes.",
+    "office": "Office of the City Accountant – Administrative Division",
+    "classification": "Simple",
+    "transactionType": "G2G (Government to Government)",
+    "eligibleUsers": "City Government Employees",
+    "totalProcessingTime": "44 Minutes"
+  },
+  "requirements": [
+    "Accomplished Document Request Form",
+    "Photocopy of Valid ID with signature of requestor",
+    "Authorization Letter and claimant ID if requestor is not the employee"
+  ],
+  "processingSteps": [
+    {
+      "step": 1,
+      "action": "Receive and print request form",
+      "duration": "2 minutes"
+    },
+    {
+      "step": 2,
+      "action": "Approve request form and attachments",
+      "duration": "30 minutes"
+    },
+    {
+      "step": 3,
+      "action": "Generate certification of payslip and index of payments",
+      "duration": "5 minutes"
+    },
+    {
+      "step": 4,
+      "action": "Sign the index of payments",
+      "duration": "5 minutes"
+    },
+    {
+      "step": 5,
+      "action": "Issue requested document",
+      "duration": "2 minutes"
+    }
+  ]
+}

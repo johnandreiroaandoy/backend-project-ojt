@@ -1,0 +1,41 @@
+{
+  "title": "Accounting & Internal Audit Division",
+  "subtitle": "Processing certified document requests, record retrievals, and regulatory file releases.",
+  "iconHeader": "💵",
+  "serviceDetails": {
+    "name": "Issuance of Photocopy of Disbursement Voucher/Payroll and Accountant's Advice",
+    "purpose": "Requests for photocopies of disbursement vouchers, payroll records, and accountant's advice for LTO registration, retention and other purposes.",
+    "office": "Accounting Division and Internal Audit Division",
+    "classification": "Simple",
+    "transactionType": "G2G (Government to Government)",
+    "eligibleUsers": "City Government Employees and Departments",
+    "totalProcessingTime": "1 Hour and 4 Minutes"
+  },
+  "requirements": [
+    "Accomplished Document Request Form",
+    "Valid ID",
+    "Authorization Letter if applicable"
+  ],
+  "processingSteps": [
+    {
+      "step": 1,
+      "action": "Receive and print request form",
+      "duration": "2 minutes"
+    },
+    {
+      "step": 2,
+      "action": "Approve request form",
+      "duration": "30 minutes"
+    },
+    {
+      "step": 3,
+      "action": "Forward photocopy request",
+      "duration": "30 minutes"
+    },
+    {
+      "step": 4,
+      "action": "Issue requested document",
+      "duration": "2 minutes"
+    }
+  ]
+}
