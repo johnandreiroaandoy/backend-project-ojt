@@ -50,7 +50,7 @@ $router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
 $router->add('POST', '/api/content/save-config', 'HomeController@saveConfig');
 
 // =====================================================================
-// 2. FIXED: RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
+// 2. RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
 // =====================================================================
 
 // Extract the clean structural path from the incoming request URL string
@@ -77,6 +77,29 @@ if (strpos($requestUri, $projectRoot) === 0) {
 $requestUri = '/' . ltrim($requestUri, '/');
 
 // =====================================================================
-// 🚀 DISPATCH REQUEST TO YOUR FRAMEWORK ROUTER
+// 🚀 3. FIXED: REAL-TIME STATIC ASSET CHECK (BYPASS THE ROUTER)
+// =====================================================================
+// Strip a leading /public text block if it managed to creep into the normalized URI string
+$cleanFileUri = preg_replace('/^\/public/', '', $requestUri);
+$physicalFilePath = __DIR__ . $cleanFileUri;
+
+if (is_file($physicalFilePath)) {
+    // Determine the Content-Type header on the fly to prevent browser rendering drops
+    $extension = strtolower(pathinfo($physicalFilePath, PATHINFO_EXTENSION));
+    switch ($extension) {
+        case 'pdf':  header("Content-Type: application/pdf"); break;
+        case 'png':  header("Content-Type: image/png"); break;
+        case 'jpg':  
+        case 'jpeg': header("Content-Type: image/jpeg"); break;
+        case 'json': header("Content-Type: application/json"); break;
+    }
+    
+    // Dump the raw file binary data downstream to the browser and terminate process
+    readfile($physicalFilePath);
+    exit;
+}
+
+// =====================================================================
+// DISPATCH REQUEST TO YOUR FRAMEWORK ROUTER
 // =====================================================================
 $router->dispatch($requestUri, $_SERVER['REQUEST_METHOD']);

@@ -9,6 +9,10 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # 🚀 FIX: If the URL contains a duplicate /public/ segment, strip it so Apache looks in the right directory
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^public/(reports/.*)$ $1 [L]
+
     # If the requested path is a real file or folder, load it directly
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
