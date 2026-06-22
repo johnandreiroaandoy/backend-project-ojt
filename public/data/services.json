@@ -1,0 +1,36 @@
+{
+    "sectionTitle": "The services offered by the office includes:",
+    "cards": [
+        {
+            "id": "city",
+            "title": "City Transactions:",
+            "accentColor": "bg-blue-600",
+            "bulletColor": "text-blue-500",
+            "mainDescription": "Facilitates processing of documents (vouchers, payrolls, and contracts)",
+            "items": [
+                "Issues Certifications",
+                "Payslips (employees)",
+                "Employee’s Remittances to GSIS and HDMF Loans & Premiums / Philhealth Premiums / BIR Withholding Tax / Cooperative and Bank Loans",
+                "BIR Forms 2316, 2306, 2307 (employees/suppliers)",
+                "Unappropriated Surplus",
+                "Accountant’s Advice of Local Check Disbursement",
+                "Availability of Funds"
+            ]
+        },
+        {
+            "id": "barangay",
+            "title": "Barangay Transactions:",
+            "accentColor": "bg-emerald-500",
+            "bulletColor": "text-emerald-500",
+            "mainDescription": "Facilitates recording of barangay transactions (182 barangays)",
+            "items": [
+                "Issues Certifications",
+                "Statement of Income & Expenditures",
+                "Unappropriated Surplus",
+                "Accountant’s Certification for the cash and cash-related accounts as per book balances",
+                "Status of Cash Advances",
+                "Availability of Funds"
+            ]
+        }
+    ]
+}

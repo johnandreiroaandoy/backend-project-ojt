@@ -1,0 +1,19 @@
+{
+    "headerTitle": "Legal Mandate &  CCD123",
+    "headerSubtitle": "Core Mission ",
+    "legalBasis": "Pursuant to the Local Government Code of 1991",
+    "mandate": {
+        "title": "The Mandate ",
+        "quote": "\"The accountant shall take charge of both the accounting and internal audit services of the local government unit concerned and shall install and maintain an internal audit system in the local government unit...\"",
+        "citation": "\u2014 Section 474, Republic Act No. 7160"
+    },
+    "powers": {
+        "title": "General Powers",
+        "list": [
+            "Prepare and submit financial statements to the governor or mayor.",
+            "Apprise the sanggunian and other local government officials on the financial condition and operations of the LGU.",
+            "Certify to the availability of budgetary allotment to which expenditures and obligations may be properly charged.",
+            "Review supporting documents before preparation of vouchers to determine completeness of requirements."
+        ]
+    }
+}

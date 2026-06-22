@@ -1,0 +1,38 @@
+{
+  "title": "Contact Us",
+  "description": "Have questions regarding city disbursements or financial records? Visit our office or send us a message through the form. We aim to respond to all inquiries within 24–48 business hours.",
+  "privacyNotice": "By clicking send, you agree to our data privacy policy.",
+  "infoCards": [
+    {
+      "id": "location",
+      "label": "Office Location",
+      "value": "3rd Floor, City Hall Building, Davao City",
+      "iconSrc": "/icons/location.png",
+      "fallbackEmoji": "📍"
+    },
+    {
+      "id": "phone",
+      "label": "Phone Number",
+      "value": "(082) 222-0888 loc. 234",
+      "iconSrc": "/icons/phone.png",
+      "fallbackEmoji": "📞"
+    },
+    {
+      "id": "email",
+      "label": "Email Address",
+      "value": "accountant@davaocity.gov.ph",
+      "iconSrc": "/icons/email.png",
+      "fallbackEmoji": "✉️"
+    }
+  ],
+  "formLabels": {
+    "name": "Full Name",
+    "namePlaceholder": "e.g. Juan Dela Cruz",
+    "email": "Email Address",
+    "emailPlaceholder": "name@example.com",
+    "message": "Message",
+    "messagePlaceholder": "How can we help you?",
+    "btnDefault": "Send Message",
+    "btnSending": "Sending Request..."
+  }
+}

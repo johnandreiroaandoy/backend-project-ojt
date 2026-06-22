@@ -17,12 +17,22 @@ class Router {
         // $this->routes[] = : Appends a new route configuration straight into the localized $routes storage array matrix.
         $this->routes[] = [
             // 'method': Stores the valid HTTP Verb required for this path (e.g., 'POST' for submissions or 'GET' for reads).
-            'method' => $method,
+            'method' => strtoupper($method), // 🟢 IMPROVEMENT: Force uppercase to ensure perfect matching strings
             // 'route': Stores the textual endpoint pattern string matching the URL path (e.g., '/api/contact').
             'route' => $route,
             // 'action': Stores a tracking identifier combining the controller name and target function separated by a symbol (e.g., 'ContactController@handleContactSubmit').
             'action' => $controllerAction
         ];
+    }
+
+    // 🟢 NEW: Shorthand helper shortcut wrapper method for handling GET data requests
+    public function get(string $route, string $controllerAction) {
+        $this->add('GET', $route, $controllerAction);
+    }
+
+    // 🟢 NEW: Shorthand helper shortcut wrapper method for handling POST data streams
+    public function post(string $route, string $controllerAction) {
+        $this->add('POST', $route, $controllerAction);
     }
 
     /**
@@ -33,8 +43,8 @@ class Router {
         // parse_url(..., PHP_URL_PATH): A built-in PHP utility that extracts only the textual directory path from a complete URL string, completely stripping out any trailing query string parameters (like ?id=1).
         $url = parse_url($uri, PHP_URL_PATH);
         
-        // str_replace(): Cleans up the URL by stripping away your local development subfolders (like XAMPP's htdocs root folder path) to accurately match raw endpoint strings.
-        $url = str_replace('/cgo-accountant-api/public', '', $url);
+        // 🟢 FIXED: Updated local development folder path matching rules to align directly with your 'backend-project-ojt' layout matrix
+        $url = str_replace('/backend-project-ojt/public', '', $url);
         
         // if: A conditional guard that checks if a user included a sloppy trailing slash at the absolute end of their browser URL.
         if ($url !== '/' && substr($url, -1) === '/') {
@@ -61,8 +71,6 @@ class Router {
                 $controllerClass = "App\\Controllers\\" . $controllerName;
 
                 // 🔍 DEBUGGING CHECK 1: Does the class file actually exist/load?
-                
-                // !class_exists(): A safety gate check that verifies if the autoloader successfully loaded the designated Controller class file.
                 if (!class_exists($controllerClass)) {
                     // http_response_code(500): Issues an internal system configuration failure protocol status back to the client interface.
                     http_response_code(500);
@@ -78,8 +86,6 @@ class Router {
                 $controllerInstance = new $controllerClass();
 
                 // 🔍 DEBUGGING CHECK 2: Does the method exist inside that controller?
-                
-                // !method_exists(): Inspects the newly created controller object instance to verify if the requested function inside it physically exists.
                 if (!method_exists($controllerInstance, $action)) {
                     http_response_code(500);
                     die("<h2>Routing Error</h2>Method <strong>{$action}()</strong> does not exist inside <strong>{$controllerClass}</strong>.<br><br>
@@ -88,8 +94,6 @@ class Router {
                 }
 
                 // If everything is completely correct, execute the controller method!
-                
-                // $controllerInstance->$action(): Dynamically triggers the inner target method function (e.g., executing handleContactSubmit()) inside the target controller class.
                 $controllerInstance->$action();
                 
                 // return: Gracefully exits the dispatch controller function lifecycle because traffic mapping is complete.
@@ -98,10 +102,7 @@ class Router {
         }
 
         // If no routes match at all
-        
-        // http_response_code(404): Drops a standard global network protocol error code indicating "Not Found".
         http_response_code(404);
-        // echo: Returns a clean error layout alerting the developer or web client that the custom endpoint path does not map to any valid target controller.
         echo "<h1>404 - Page Not Found</h1><p>The custom MVC router matched the path '<strong>{$url}</strong>', but no defined route matches this destination.</p>";
     }
 }

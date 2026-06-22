@@ -1,0 +1,63 @@
+{
+  "branding": {
+    "sealSrc": "davao.png",
+    "sealAlt": "Davao City Seal",
+    "logoSrc": "dcplinado.png",
+    "logoAlt": "Dabawenyo DCPlinado Logo",
+    "description": "Ensuring fiscal integrity and transparent financial management for the City of Davao."
+  },
+  "quickLinks": {
+    "heading": "Quick Links",
+    "links": [
+      { "label": "Know Davao City", "href": "#" },
+      { "label": "City Departments", "href": "#" },
+      { "label": "Online Services", "href": "#" },
+      { "label": "Transparency Seal", "href": "#" }
+    ]
+  },
+  "contact": {
+    "heading": "Contact Us",
+    "phone": {
+      "icon": "phone.png",
+      "text": "(082) 222-1234 / Local 505"
+    },
+    "email": {
+      "icon": "at.png",
+      "text": "accountant@davaocity.gov.ph",
+      "href": "mailto:accountant@davaocity.gov.ph"
+    },
+    "address": {
+      "icon": "ct.png",
+      "line1": "3rd Floor, City Hall Building,",
+      "line2": "City Hall Drive, Davao City, 8000"
+    }
+  },
+  "portals": {
+    "heading": "Government Portals",
+    "logos": [
+      { "src": "republic.png", "alt": "Republic of the Philippines" },
+      { "src": "bagong.png", "alt": "Bagong Pilipinas" }
+    ]
+  },
+  "legal": {
+    "copyright": "© 2026 City Government of Davao. All Rights Reserved.",
+    "policies": [
+      { "label": "Privacy Policy", "href": "#" },
+      { "label": "Terms of Use", "href": "#" }
+    ],
+    "socials": [
+      {
+        "type": "link",
+        "src": "/fbl.png",
+        "alt": "Facebook",
+        "href": "https://www.facebook.com/davaocitygov/",
+        "aria": "Visit our official Facebook page"
+      },
+      {
+        "type": "icon",
+        "src": "X.png",
+        "alt": "Twitter"
+      }
+    ]
+  }
+}

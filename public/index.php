@@ -19,9 +19,7 @@ function loadEnv($path) {
         }
     }
 }
-// Execute the loader pointing back to your root directory .env file
 loadEnv(__DIR__ . '/../.env');
-
 
 // 1. INSTANT CORS PREFLIGHT GREEN LIGHT
 header("Access-Control-Allow-Origin: *");
@@ -34,36 +32,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../vendor/autoload.php';
-
-// 🟢 ADD THIS LINE: Manually imports your new controller to bypass Composer's autoloader index
 require_once __DIR__ . '/../app/Controllers/UserController.php';
 
 use Core\Router;
 
 $router = new Router();
 
-// Keeps your default backend test page active
 $router->add('GET', '/', 'HomeController@index');
 
 // 🟢 ACTIVE API ENDPOINT REGISTRY
 $router->add('GET', '/api/reports', 'ReportController@getReports');
+$router->add('POST', '/api/reports/upload', 'ReportController@uploadReport');
+$router->add('DELETE', '/api/reports/delete', 'ReportController@deleteReport');
+
 $router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
-
-// 🟢 NEW: Email Verification endpoint registered to use your exact '@' string notation format
 $router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
+$router->add('POST', '/api/content/save-config', 'HomeController@saveConfig');
 
-$router->add('POST', '/api/verify-email', 'ContactController@verifyEmail');
+// =====================================================================
+// 2. FIXED: RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
+// =====================================================================
 
+// Extract the clean structural path from the incoming request URL string
+$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// 2. SUB-FOLDER STRIPPER 
-$requestUri = $_SERVER['REQUEST_URI'];
-$scriptName = dirname($_SERVER['SCRIPT_NAME']); // Gets '/cgo-accountant-api/public'
+// Identify the execution directory path string and force forward slashes
+$scriptName = dirname($_SERVER['SCRIPT_NAME']); 
+$scriptName = str_replace('\\', '/', $scriptName); // Safeguard for Windows setups
 
-if (strpos($requestUri, $scriptName) === 0) {
-    $requestUri = substr($requestUri, strlen($scriptName));
+// Strip the nested script folders (e.g., '/backend-project-ojt/public') if found at the beginning
+if (!empty($scriptName) && $scriptName !== '/') {
+    if (strpos($requestUri, $scriptName) === 0) {
+        $requestUri = substr($requestUri, strlen($scriptName));
+    }
 }
 
-$requestUri = '/' . ltrim(parse_url($requestUri, PHP_URL_PATH), '/');
+// Fallback Hard-Guard: Clear the root folder segment if it bypassed the script name check
+$projectRoot = '/backend-project-ojt';
+if (strpos($requestUri, $projectRoot) === 0) {
+    $requestUri = substr($requestUri, strlen($projectRoot));
+}
 
-// Dispatch the cleaned path request
+// Ensure the final processed routing path always begins with a single forward slash
+$requestUri = '/' . ltrim($requestUri, '/');
+
+// =====================================================================
+// 🚀 DISPATCH REQUEST TO YOUR FRAMEWORK ROUTER
+// =====================================================================
 $router->dispatch($requestUri, $_SERVER['REQUEST_METHOD']);
