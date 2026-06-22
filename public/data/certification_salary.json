@@ -1,86 +1,86 @@
 {
-  "financial": {
-    "title": "Financial Reporting Division",
-    "subtitle": "Accountability through precise fiscal disclosure.",
-    "iconHeader": "📊"
-  },
-  "audit": {
-    "title": "Internal Audit Service",
-    "subtitle": "Safeguarding city assets with objective evaluation.",
-    "iconHeader": "🔍"
-  },
-  "claims": {
-    "title": "Processing of Claims & Payroll",
-    "subtitle": "Expedient, compliant, and secure public disbursements.",
-    "iconHeader": "💳"
-  },
-  "salaryCertification": {
-    "title": "Accounting & Internal Audit Division",
-    "subtitle": "Verifying, compiling, and formalizing statutory compensation histories and travel clearance indices.",
-    "iconHeader": "📄",
-    "serviceDetails": {
-      "name": "Issuance of Certification on Salary Received and No Travel Claim",
-      "purpose": "Certification on salary received and no travel claim for travel, visa applications, monitoring, court hearings and other official purposes.",
-      "office": "Accounting Division and Internal Audit Division",
-      "classification": "Simple",
-      "transactionType": "G2G (Government to Government)",
-      "eligibleUsers": "City Government Employees",
-      "totalProcessingTime": "3 Hours and 4 Minutes"
+    "financial": {
+        "title": "Financial Reporting Division",
+        "subtitle": "Accountability through precise fiscal disclosure.",
+        "iconHeader": "\ud83d\udcca"
     },
-    "requirements": [
-      "Accomplished Document Request Form",
-      "Valid ID",
-      "Authorization Letter if applicable"
-    ],
-    "processingSteps": [
-      {
-        "step": 1,
-        "action": "Receive and print request form",
-        "duration": "2 minutes"
-      },
-      {
-        "step": 2,
-        "action": "Approve request form",
-        "duration": "30 minutes"
-      },
-      {
-        "step": 3,
-        "action": "Prepare requested certification",
-        "duration": "2 hours"
-      },
-      {
-        "step": 4,
-        "action": "Sign certification",
-        "duration": "30 minutes"
-      },
-      {
-        "step": 5,
-        "action": "Issue requested document",
-        "duration": "2 minutes"
-      }
-    ]
-  },
-  "barangay": {
-    "title": "Barangay Affairs Section",
-    "subtitle": "Empowering and managing financial systems of micro-political units.",
-    "iconHeader": "🏠",
-    "servicesList": [
-      {
-        "name": "Barangay Financial Records Custody",
-        "desc": "Systematic indexing, tracking, and safekeeping of all financial journals, ledgers, and transactions submitted by Barangay Treasurers."
-      },
-      {
-        "name": "Technical Assistance & Accounting Guidance",
-        "desc": "Conducting localized advisory sessions, workshops, and coaching clinics for Barangay Accountants and Treasurers."
-      },
-      {
-        "name": "Review of Barangay Budget Allocations",
-        "desc": "Processing and reviewing the mathematical and procedural correctness of individual Barangay Appropriations and statutory fund transfers."
-      },
-      {
-        "name": "Clearance and Certificate Issuance",
-        "desc": "Issuance of Accounting Clearances to outgoing barangay officials ensuring they have properly accounted for all assets."
-      }
-    ]
-  }
+    "audit": {
+        "title": "Internal Audit Service",
+        "subtitle": "Safeguarding city assets with objective evaluation.",
+        "iconHeader": "\ud83d\udd0d"
+    },
+    "claims": {
+        "title": "Processing of Claims & Payroll",
+        "subtitle": "Expedient, compliant, and secure public disbursements.",
+        "iconHeader": "\ud83d\udcb3"
+    },
+    "salaryCertification": {
+        "title": "Accounting & Internal Audit Division",
+        "subtitle": "Verifying, compiling, and formalizing statutory compensation histories and travel clearance indices.",
+        "iconHeader": "\ud83d\udcc4",
+        "serviceDetails": {
+            "name": "Issuance of Certification on Salary Received and No Travel Claim ",
+            "purpose": "Certification on salary received and no travel claim for travel, visa applications, monitoring, court hearings and other official purposes.",
+            "office": "Accounting Division and Internal Audit Division",
+            "classification": "Simple",
+            "transactionType": "G2G (Government to Government)",
+            "eligibleUsers": "City Government Employees",
+            "totalProcessingTime": "3 Hours and 4 Minutes"
+        },
+        "requirements": [
+            "Accomplished Document Request Form",
+            "Valid ID",
+            "Authorization Letter if applicable"
+        ],
+        "processingSteps": [
+            {
+                "step": 1,
+                "action": "Receive and print request form",
+                "duration": "2 minutes"
+            },
+            {
+                "step": 2,
+                "action": "Approve request form",
+                "duration": "30 minutes"
+            },
+            {
+                "step": 3,
+                "action": "Prepare requested certification",
+                "duration": "2 hours"
+            },
+            {
+                "step": 4,
+                "action": "Sign certification",
+                "duration": "30 minutes"
+            },
+            {
+                "step": 5,
+                "action": "Issue requested document",
+                "duration": "2 minutes"
+            }
+        ]
+    },
+    "barangay": {
+        "title": "Barangay Affairs Section",
+        "subtitle": "Empowering and managing financial systems of micro-political units.",
+        "iconHeader": "\ud83c\udfe0",
+        "servicesList": [
+            {
+                "name": "Barangay Financial Records Custody",
+                "desc": "Systematic indexing, tracking, and safekeeping of all financial journals, ledgers, and transactions submitted by Barangay Treasurers."
+            },
+            {
+                "name": "Technical Assistance & Accounting Guidance",
+                "desc": "Conducting localized advisory sessions, workshops, and coaching clinics for Barangay Accountants and Treasurers."
+            },
+            {
+                "name": "Review of Barangay Budget Allocations",
+                "desc": "Processing and reviewing the mathematical and procedural correctness of individual Barangay Appropriations and statutory fund transfers."
+            },
+            {
+                "name": "Clearance and Certificate Issuance",
+                "desc": "Issuance of Accounting Clearances to outgoing barangay officials ensuring they have properly accounted for all assets."
+            }
+        ]
+    }
 }

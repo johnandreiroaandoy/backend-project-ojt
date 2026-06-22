@@ -1,38 +1,38 @@
 {
-  "header": {
-    "title": "Core Services",
-    "subtitle": "Davao City Accountant's Office Strategic Functions"
-  },
-  "controls": {
-    "backButton": "← Back to Core Services List",
-    "actionButton": "Read More"
-  },
-  "cards": [
-    {
-      "id": "Certification of Payslip",
-      "title": "Issuance of Certification of Payslip and Index of Payments of City Government Personnel",
-      "icon": "📝"
+    "header": {
+        "title": "Core Services  ",
+        "subtitle": "Davao City Accountant's Office Strategic Functions"
     },
-    {
-      "id": "Certificate of Remittances",
-      "title": "Issuance of Certificate of Remittances",
-      "icon": "🏦"
+    "controls": {
+        "backButton": "\u2190 Back to Core Services List ",
+        "actionButton": "Read More"
     },
-    {
-      "id": "Photocopy of Disbursement",
-      "title": "Issuance of Photocopy of Disbursement Voucher/Payroll and Accountant's Advice",
-      "icon": "💵"
-    },
-    {
-      "id": "Certification on Salary Received",
-      "title": "Issuance of Certification on Salary Received and No Travel Claim",
-      "desc": "Technical assistance for barangay financial management.",
-      "icon": "📜"
-    },
-    {
-      "id": "elap",
-      "title": "Review Application for Trust Fund – Emergency Loan Assistance Program (ELAP)",
-      "icon": "🛡️"
-    }
-  ]
+    "cards": [
+        {
+            "id": "Certification of Payslip",
+            "title": "Issuance of Certification of Payslip and Index of Payments of City Government Personnel",
+            "icon": "\ud83d\udcdd"
+        },
+        {
+            "id": "Certificate of Remittances",
+            "title": "Issuance of Certificate of Remittances",
+            "icon": "\ud83c\udfe6"
+        },
+        {
+            "id": "Photocopy of Disbursement",
+            "title": "Issuance of Photocopy of Disbursement Voucher/Payroll and Accountant's Advice",
+            "icon": "\ud83d\udcb5"
+        },
+        {
+            "id": "Certification on Salary Received",
+            "title": "Issuance of Certification on Salary Received and No Travel Claim",
+            "desc": "Technical assistance for barangay financial management.",
+            "icon": "\ud83d\udcdc"
+        },
+        {
+            "id": "elap",
+            "title": "Review Application for Trust Fund \u2013 Emergency Loan Assistance Program (ELAP)",
+            "icon": "\ud83d\udee1\ufe0f"
+        }
+    ]
 }

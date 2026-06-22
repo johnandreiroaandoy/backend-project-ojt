@@ -1,49 +1,49 @@
 {
-  "title": "Financial Management Division",
-  "subtitle": "Processing and verification of trust fund releases under statutory disaster relief initiatives.",
-  "iconHeader": "🛡️",
-  "serviceDetails": {
-    "name": "Review Application for Trust Fund – Emergency Loan Assistance Program (ELAP)",
-    "purpose": "Processing of employee applications to avail of the Trust Fund – Emergency Loan Assistance Program (ELAP).",
-    "office": "Financial Management Division",
-    "classification": "Simple",
-    "transactionType": "G2G (Government to Government)",
-    "eligibleUsers": "City Government Employees (Plantilla)",
-    "totalProcessingTime": "1 Hour and 34 Minutes"
-  },
-  "requirements": [
-    "Accomplished Document Request Form",
-    "Valid ID",
-    "Authorization Letter if applicable",
-    "ELAP Application Form",
-    "Doctor's Prescription / Official Receipt / Statement of Account",
-    "Payslip not below Php 3,000 after ELAP deduction"
-  ],
-  "processingSteps": [
-    {
-      "step": 1,
-      "action": "Receive and print request form",
-      "duration": "2 minutes"
+    "title": "Financial Management Division",
+    "subtitle": "Processing and verification of trust fund releases under statutory disaster relief initiatives.",
+    "iconHeader": "\ud83d\udee1\ufe0f",
+    "serviceDetails": {
+        "name": "Review Application for Trust Fund \u2013 Emergency Loan Assistance Program (ELAP)",
+        "purpose": "Processing of employee applications to avail of the Trust Fund \u2013 Emergency Loan Assistance Program (ELAP).",
+        "office": "Financial Management Division",
+        "classification": "Simple",
+        "transactionType": "G2G (Government to Government)",
+        "eligibleUsers": "City Government Employees (Plantilla)",
+        "totalProcessingTime": "1 Hour and 34 Minutes"
     },
-    {
-      "step": 2,
-      "action": "Approve ELAP request",
-      "duration": "30 minutes"
-    },
-    {
-      "step": 3,
-      "action": "Review ELAP application and attachments",
-      "duration": "30 minutes"
-    },
-    {
-      "step": 4,
-      "action": "Sign recommendation on ELAP application",
-      "duration": "30 minutes"
-    },
-    {
-      "step": 5,
-      "action": "Issue requested document",
-      "duration": "2 minutes"
-    }
-  ]
+    "requirements": [
+        "Accomplished Document Request Form",
+        "Valid ID",
+        "Authorization Letter if applicable",
+        "ELAP Application Form",
+        "Doctor's Prescription / Official Receipt / Statement of Account",
+        "Payslip not below Php 3,000 after ELAP deduction"
+    ],
+    "processingSteps": [
+        {
+            "step": 1,
+            "action": "Receive and print request form",
+            "duration": "2 minutes"
+        },
+        {
+            "step": 2,
+            "action": "Approve ELAP request",
+            "duration": "30 minutes"
+        },
+        {
+            "step": 3,
+            "action": "Review ELAP application and attachments",
+            "duration": "30 minutes"
+        },
+        {
+            "step": 4,
+            "action": "Sign recommendation on ELAP application",
+            "duration": "30 minutes"
+        },
+        {
+            "step": 5,
+            "action": "Issue requested document",
+            "duration": "2 minutes"
+        }
+    ]
 }

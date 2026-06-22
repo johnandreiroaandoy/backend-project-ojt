@@ -57,14 +57,21 @@ class HomeController {
         }
 
         // 🛡️ Security Whitelist: Map target references precisely to files inside public/data/
-        // ✅ UPDATED: Added 'vision_mission.json' into the authorized storage map array
+        // ✅ UPDATED: Expanded with all new specific certification, service, and layout endpoints
         $allowedFiles = [
-            'header_data.json'        => __DIR__ . '/../../public/data/header_data.json',
-            'mandate_data.json'       => __DIR__ . '/../../public/data/mandate_data.json',
-            'services.json'           => __DIR__ . '/../../public/data/services.json',
-            'services_directory.json' => __DIR__ . '/../../public/data/services_directory.json',
-            'contact_info.json'       => __DIR__ . '/../../public/data/contact_info.json',
-            'vision_mission.json'     => __DIR__ . '/../../public/data/vision_mission.json' 
+            'header_data.json'            => __DIR__ . '/../../public/data/header_data.json',
+            'mandate_data.json'           => __DIR__ . '/../../public/data/mandate_data.json',
+            'services.json'               => __DIR__ . '/../../public/data/services.json',
+            'services_directory.json'     => __DIR__ . '/../../public/data/services_directory.json',
+            'contact_info.json'           => __DIR__ . '/../../public/data/contact_info.json',
+            'vision_mission.json'         => __DIR__ . '/../../public/data/vision_mission.json',
+            'certification_payslip.json'  => __DIR__ . '/../../public/data/certification_payslip.json',
+            
+            // 🚀 NEW FILE REGISTRATIONS ADDED BELOW:
+            'certificate_remittances.json' => __DIR__ . '/../../public/data/certificate_remittances.json',
+            'certification_salary.json'     => __DIR__ . '/../../public/data/certification_salary.json',
+            'services_elap.json'           => __DIR__ . '/../../public/data/services_elap.json',
+            'photocopy_disbursement.json'  => __DIR__ . '/../../public/data/photocopy_disbursement.json' 
         ];
 
         if (!array_key_exists($targetFile, $allowedFiles)) {
@@ -93,7 +100,7 @@ class HomeController {
             // 3. Move the combined dataset over to processing
             $finalData = $existingData;
         } else {
-            // Mandate, landing intro text, contact info, vision/mission, and catalog receive clean rewrites
+            // Mandate, landing intro text, contact info, vision/mission, catalog, and payslips receive clean rewrites
             $finalData = $data;
         }
 

@@ -1,51 +1,51 @@
 {
-  "title": "Administrative & Financial Management Division",
-  "subtitle": "Processing certified verification trackers for organizational remittances and statutory premium distributions.",
-  "iconHeader": "🏦",
-  "serviceDetails": {
-    "name": "Issuance of Certificate of Remittances",
-    "purpose": "Certificate of remittances for GSIS, HDMF, banks, cooperatives, retirement, reconciliation, travel, visa applications, monitoring, court hearings and related purposes.",
-    "office": "Administrative Division and Financial Management Division",
-    "classification": "Simple",
-    "transactionType": "G2G (Government to Government)",
-    "eligibleUsers": "City Government Employees and Partners",
-    "totalProcessingTime": "2 Days and 44 Minutes"
-  },
-  "requirements": [
-    "Accomplished Document Request Form",
-    "Valid ID",
-    "Authorization Letter if applicable"
-  ],
-  "processingSteps": [
-    {
-      "step": 1,
-      "action": "Receive and print request form",
-      "duration": "2 minutes"
+    "title": "Administrative & Financial Management Division",
+    "subtitle": "Processing certified verification trackers for organizational remittances and statutory premium distributions.",
+    "iconHeader": "\ud83c\udfe6",
+    "serviceDetails": {
+        "name": "Issuance of Certificate of Remittances ",
+        "purpose": "Certificate of remittances for GSIS, HDMF, banks, cooperatives, retirement, reconciliation, travel, visa applications, monitoring, court hearings and related purposes.",
+        "office": "Administrative Division and Financial Management Division",
+        "classification": "Simple",
+        "transactionType": "G2G (Government to Government)",
+        "eligibleUsers": "City Government Employees and Partners",
+        "totalProcessingTime": "2 Days and 44 Minutes"
     },
-    {
-      "step": 2,
-      "action": "Approve request form",
-      "duration": "30 minutes"
-    },
-    {
-      "step": 3,
-      "action": "Generate certificate of remittances",
-      "duration": "5 minutes"
-    },
-    {
-      "step": 4,
-      "action": "Review certificate",
-      "duration": "2 days"
-    },
-    {
-      "step": 5,
-      "action": "Sign certificate",
-      "duration": "5 minutes"
-    },
-    {
-      "step": 6,
-      "action": "Issue requested document",
-      "duration": "2 minutes"
-    }
-  ]
+    "requirements": [
+        "Accomplished Document Request Form",
+        "Valid ID",
+        "Authorization Letter if applicable"
+    ],
+    "processingSteps": [
+        {
+            "step": 1,
+            "action": "Receive and print request form",
+            "duration": "2 minutes"
+        },
+        {
+            "step": 2,
+            "action": "Approve request form",
+            "duration": "30 minutes"
+        },
+        {
+            "step": 3,
+            "action": "Generate certificate of remittances",
+            "duration": "5 minutes"
+        },
+        {
+            "step": 4,
+            "action": "Review certificate",
+            "duration": "2 days"
+        },
+        {
+            "step": 5,
+            "action": "Sign certificate",
+            "duration": "5 minutes"
+        },
+        {
+            "step": 6,
+            "action": "Issue requested document",
+            "duration": "2 minutes"
+        }
+    ]
 }
