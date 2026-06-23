@@ -59,27 +59,32 @@ class HomeController {
         // 🛡️ Security Whitelist: Map target references precisely to files inside public/data/
         // ✅ UPDATED: Expanded with all new specific certification, service, and layout endpoints
         $allowedFiles = [
-            'header_data.json'            => __DIR__ . '/../../public/data/header_data.json',
-            'mandate_data.json'           => __DIR__ . '/../../public/data/mandate_data.json',
-            'services.json'               => __DIR__ . '/../../public/data/services.json',
-            'services_directory.json'     => __DIR__ . '/../../public/data/services_directory.json',
-            'contact_info.json'           => __DIR__ . '/../../public/data/contact_info.json',
-            'vision_mission.json'         => __DIR__ . '/../../public/data/vision_mission.json',
-            'certification_payslip.json'  => __DIR__ . '/../../public/data/certification_payslip.json',
-            
-            // 🚀 NEW FILE REGISTRATIONS ADDED BELOW:
+            'header_data.json'             => __DIR__ . '/../../public/data/header_data.json',
+            'mandate_data.json'            => __DIR__ . '/../../public/data/mandate_data.json',
+            'services.json'                => __DIR__ . '/../../public/data/services.json',
+            'services_directory.json'      => __DIR__ . '/../../public/data/services_directory.json',
+            'contact_info.json'            => __DIR__ . '/../../public/data/contact_info.json',
+            'vision_mission.json'          => __DIR__ . '/../../public/data/vision_mission.json',
+            'certification_payslip.json'   => __DIR__ . '/../../public/data/certification_payslip.json',
             'certificate_remittances.json' => __DIR__ . '/../../public/data/certificate_remittances.json',
-            'certification_salary.json'     => __DIR__ . '/../../public/data/certification_salary.json',
+            'certification_salary.json'    => __DIR__ . '/../../public/data/certification_salary.json',
             'services_elap.json'           => __DIR__ . '/../../public/data/services_elap.json',
             'photocopy_disbursement.json'  => __DIR__ . '/../../public/data/photocopy_disbursement.json' 
         ];
 
-        if (!array_key_exists($targetFile, $allowedFiles)) {
+        // 🔀 DETERMINISTIC DIRECTORY ROUTING GATE
+        if (array_key_exists($targetFile, $allowedFiles)) {
+            // Match found inside hardcoded whitelist table matrix
+            $destinationPath = $allowedFiles[$targetFile];
+        } else if (strpos($targetFile, 'services_') === 0 && substr($targetFile, -5) === '.json') {
+            // 🚀 DYNAMIC ROUTE ALLOWED: Intercepts custom runtime creations matching prefix configurations
+            // basename() filters out path traversal attacks like '../../' for server filesystem safety
+            $safeCleanFilename = basename($targetFile); 
+            $destinationPath = __DIR__ . '/../../public/data/' . $safeCleanFilename;
+        } else {
             echo json_encode(["status" => "error", "message" => "Access to specified layout target is restricted."]);
             exit;
         }
-
-        $destinationPath = $allowedFiles[$targetFile];
         
         // 🟢 Guard logic specifically for header layout deep-merging
         if ($targetFile === 'header_data.json') {
