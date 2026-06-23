@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use Core\Database;
 use Exception;
+use finfo; // 🌟 NEW: Ensure we can instantiate the File Information extension explicitly
 
 class ReportController {
     
@@ -51,7 +52,7 @@ class ReportController {
             // Strip any accidental non-numeric characters to prevent folder path exploits
             $year  = preg_replace('/[^0-9]/', '', $year);
 
-            // 🔀 FIXED: Look for 'file' payload key to align perfectly with your React FormData hook
+            // FIXED: Look for 'file' payload key to align perfectly with your React FormData hook
             if (empty($title) || !isset($_FILES['file'])) {
                 echo json_encode(["status" => "error", "message" => "Missing required text fields or physical file attachment."]);
                 exit;
@@ -62,6 +63,19 @@ class ReportController {
             // Basic error handling for native PHP upload restrictions
             if ($file['error'] !== UPLOAD_ERR_OK) {
                 echo json_encode(["status" => "error", "message" => "PHP file upload error code: " . $file['error']]);
+                exit;
+            }
+
+            // 🔒 NEW CRITICAL SECURITY LAYER: Intercept file binary and inspect actual content signatures
+            $finfoInstance = new finfo(FILEINFO_MIME_TYPE);
+            $trueMimeType = $finfoInstance->file($file['tmp_name']);
+
+            // Reject anything pretending to be a PDF that doesn't output standard headers
+            if ($trueMimeType !== 'application/pdf') {
+                echo json_encode([
+                    "status" => "error", 
+                    "message" => "Security Exception: Server-side file verification mismatch. Uploaded file is not a genuine PDF document."
+                ]);
                 exit;
             }
 

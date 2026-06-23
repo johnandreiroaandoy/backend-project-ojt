@@ -49,6 +49,9 @@ $router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
 $router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
 $router->add('POST', '/api/content/save-config', 'HomeController@saveConfig');
 
+// 👥 NEW: Analytics background session pipeline tracker endpoint
+$router->add('GET', '/api/analytics/track-visit', 'UserController@trackVisit');
+
 // =====================================================================
 // 2. RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
 // =====================================================================

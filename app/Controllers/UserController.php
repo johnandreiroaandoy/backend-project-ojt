@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use Core\Database;
 use Exception;
+use PDO;
 
 class UserController {
     
@@ -56,6 +57,64 @@ class UserController {
             echo json_encode([
                 "status" => "error", 
                 "message" => "Database error: " . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * 👥 NEW: Tracks visitor time, activity heartbeat, and expiration "death" windows
+     */
+    public function trackVisit() {
+        header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type");
+
+        try {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // 1. Generate an anonymous unique signature tracker for today
+            $sessionID = session_id();
+            $todayDate = date('Y-m-d');
+            $sessionHash = hash('sha256', $sessionID . $todayDate);
+
+            // Set session expiration lifespan window (e.g., 30 minutes = 1800 seconds)
+            $lifespan = 1800;
+            $deathTime = date('Y-m-d H:i:s', time() + $lifespan);
+
+            // 2. Connect via your built-in framework Database link
+            $db = Database::connect(); 
+
+            // 3. Log the "time" (birth) or update activity heartbeat and session "death" window
+            $stmt = $db->prepare("
+                INSERT INTO website_visitors (session_hash, session_death) 
+                VALUES (:session_hash, :session_death)
+                ON DUPLICATE KEY UPDATE 
+                    last_activity = CURRENT_TIMESTAMP,
+                    session_death = :session_death_update
+            ");
+
+            $stmt->execute([
+                ':session_hash'         => $sessionHash,
+                ':session_death'         => $deathTime,
+                ':session_death_update'  => $deathTime
+            ]);
+
+            // 4. Gather total collective unique traffic reach metrics
+            $countStmt = $db->query("SELECT COUNT(*) as total_visitors FROM website_visitors");
+            $result = $countStmt->fetch(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                "status" => "success",
+                "total_visitors" => (int)$result['total_visitors']
+            ]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                "status" => "error", 
+                "message" => "Tracking node error: " . $e->getMessage()
             ]);
         }
     }
