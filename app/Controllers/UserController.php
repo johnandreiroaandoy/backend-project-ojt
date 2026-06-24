@@ -56,7 +56,7 @@ class UserController {
     }
 
     /**
-     * 👥 Increments the master counter AND appends a precise time-log record
+     * 👥 Track visits: Aggregates totals into website_visitors without log flooding
      */
     public function trackVisit() {
         header("Content-Type: application/json");
@@ -75,18 +75,15 @@ class UserController {
             // 🟢 Only record telemetry metrics if it's NOT an administrative panel preview fetch
             if ($pagename !== 'admin_summary') {
                 
-                // 1. DUAL TRACKING STEP A: Keep your original master counter incrementing intact
+                // Pure high-performance aggregation upsert query—no secondary log table flood!
                 $stmt1 = $db->prepare("
-                    INSERT INTO website_visitors (pagename, counter) 
-                    VALUES (:pagename, 1)
+                    INSERT INTO website_visitors (pagename, counter, updated_at) 
+                    VALUES (:pagename, 1, NOW())
                     ON DUPLICATE KEY UPDATE 
-                        counter = counter + 1
+                        counter = counter + 1,
+                        updated_at = NOW()
                 ");
                 $stmt1->execute([':pagename' => $pagename]);
-
-                // 2. DUAL TRACKING STEP B: Record the exact user check-in time into the historical log table
-                $stmt2 = $db->prepare("INSERT INTO visitor_activity_logs (pagename) VALUES (:pagename)");
-                $stmt2->execute([':pagename' => $pagename]);
             }
 
             // Gather total collective accumulated views from the master rows
@@ -111,8 +108,7 @@ class UserController {
     }
 
     /**
-     * 📊 Bundles master counters, itemized access times, chronological chart intervals,
-     * AND extracts real-time submission counts from the user contact form matrix entries.
+     * 📊 Bundles active page counters and extracts dynamic inquiry submission timeline metrics
      */
     public function getAnalyticsMetrics() {
         header("Content-Type: application/json");
@@ -121,42 +117,48 @@ class UserController {
         try {
             $db = Database::connect();
             
-            // 1. Fetch total page counters sorted highest to lowest traffic
+            // 1. Fetch total page counters sorted highest to lowest traffic (Chart 1)
             $counterStmt = $db->query("SELECT pagename, counter, updated_at FROM website_visitors ORDER BY counter DESC");
             $counters = $counterStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // 2. Fetch the 50 most recent exact raw access times from your logging table
-            $logStmt = $db->query("
-                SELECT pagename, accessed_at 
-                FROM visitor_activity_logs 
-                ORDER BY accessed_at DESC 
-                LIMIT 50
-            ");
-            $recentLogs = $logStmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // 3. Generate a chart timeline data map (grouped by date and hourly slots)
-            $chartStmt = $db->query("
+            // 2. 📈 NEW: Extract dynamic inquiry hours from the existing timestamps inside the contacts table
+            $hourlyStmt = $db->query("
                 SELECT 
-                    DATE_FORMAT(accessed_at, '%Y-%m-%d %H:00:00') as time_bucket,
-                    COUNT(*) as hits
-                FROM visitor_activity_logs
-                GROUP BY time_bucket
-                ORDER BY time_bucket ASC
-                LIMIT 100
+                    HOUR(created_at) as hour_number, 
+                    COUNT(*) as message_count 
+                FROM contacts 
+                GROUP BY HOUR(created_at) 
+                ORDER BY hour_number ASC
             ");
-            $timelineData = $chartStmt->fetchAll(PDO::FETCH_ASSOC);
+            $rawHourlyData = $hourlyStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // 4. Query total records contained within the contacts table database structure
+            // Normalize the timeline array into a strict 24-point array matrix (Hours 0-23) so Recharts lines don't break
+            $inquiryHours = [];
+            for ($h = 0; $h < 24; $h++) {
+                $inquiryHours[$h] = [
+                    "hour_number" => $h,
+                    "message_count" => 0
+                ];
+            }
+
+            // Merge dynamic grouping data onto the 24-hour timeline skeleton structure
+            foreach ($rawHourlyData as $row) {
+                $hourIndex = (int)$row['hour_number'];
+                if ($hourIndex >= 0 && $hourIndex < 24) {
+                    $inquiryHours[$hourIndex]['message_count'] = (int)$row['message_count'];
+                }
+            }
+
+            // 3. Query total records contained within the contacts table database structure
             $contactStmt = $db->query("SELECT COUNT(*) as total_messages FROM contacts");
             $contactResult = $contactStmt->fetch(PDO::FETCH_ASSOC);
             $totalInquiries = isset($contactResult['total_messages']) ? (int)$contactResult['total_messages'] : 0;
 
             echo json_encode([
                 "status" => "success",
-                "metrics" => $counters,       // Master counter dataset
-                "recentLogs" => $recentLogs,   // Precise user click clock times
-                "timeline" => $timelineData,   // Recharts visualization map array
-                "totalInquiries" => $totalInquiries // Real-time message count parameter
+                "metrics" => $counters,               // Master clean counter dataset
+                "inquiryHours" => array_values($inquiryHours), // 🟢 24-Hour clean inquiry distribution metrics array
+                "totalInquiries" => $totalInquiries   // Real-time message count parameter
             ]);
             
         } catch (Exception $e) {
@@ -169,7 +171,7 @@ class UserController {
     }
 
     /**
-     * 📩 NEW STEP FOR OPTION A: Extracts raw recent submission text data matrices 
+     * 📩 Extracts raw recent submission text data matrices 
      * This fulfills the React dashboard's request to render rows inside the UI inbox component.
      */
     public function getInquiriesList() {
@@ -190,7 +192,6 @@ class UserController {
             $stmt = $db->query("SELECT id, name, email, message, created_at FROM contacts ORDER BY id DESC LIMIT 100");
             $inquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // ✅ CHANGED: Changed the key name to "inquiriesList" to match your front-end expected prop!
             echo json_encode([
                 "status" => "success",
                 "inquiriesList" => $inquiries
