@@ -49,8 +49,14 @@ $router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
 $router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
 $router->add('POST', '/api/content/save-config', 'HomeController@saveConfig');
 
-// 👥 NEW: Analytics background session pipeline tracker endpoint
+// 👥 Analytics background session pipeline tracker endpoint
 $router->add('GET', '/api/analytics/track-visit', 'UserController@trackVisit');
+
+// 📊 Endpoint to fetch itemized page view metrics rows for the React dashboard layout
+$router->add('GET', '/api/analytics/metrics', 'UserController@getAnalyticsMetrics');
+
+// ✅ FIXED: Added registry mapping endpoint to clear your front-end 404 handler exception
+$router->add('GET', '/api/analytics/inquiries-list', 'UserController@getInquiriesList');
 
 // =====================================================================
 // 2. RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
@@ -80,7 +86,7 @@ if (strpos($requestUri, $projectRoot) === 0) {
 $requestUri = '/' . ltrim($requestUri, '/');
 
 // =====================================================================
-// 🚀 3. FIXED: REAL-TIME STATIC ASSET CHECK (BYPASS THE ROUTER)
+// 🚀 3. REAL-TIME STATIC ASSET CHECK (BYPASS THE ROUTER)
 // =====================================================================
 // Strip a leading /public text block if it managed to creep into the normalized URI string
 $cleanFileUri = preg_replace('/^\/public/', '', $requestUri);
