@@ -7,24 +7,20 @@ class HomeController {
     
     // public function: An accessible action method. "index" is the industry-standard name for the default entry point.
     public function index() {
-        
         // header(): Sends a raw network instruction telling the browser/client to interpret the output strictly as a JSON data string.
         header("Content-Type: application/json");
         
         // echo: Outbound transmitter command that prints text directly into the HTTP response body.
-        // json_encode(): A built-in PHP function that converts a readable PHP associative array into a universal JSON format string.
         echo json_encode([
-            // "status" => "success": A custom key-value descriptor telling the frontend that the backend infrastructure is healthy.
             "status" => "success", 
-            // "message" => "...": A friendly text confirmation verifying that your custom MVC framework engine is successfully active.
             "message" => "CGO Accountant API Framework Active Engine"
         ]);
-        
-    } // Ends the index function action block
+    }
 
     /**
      * saveConfig: Handles secure inbound POST requests from the React admin panel
      * to update system configuration layout JSON blocks saved on disk.
+     * * 🔒 AUTOMATICALLY PROTECTED: The global Router engine drops unauthorized traffic before this code is reached.
      */
     public function saveConfig() {
         // 🔓 Set API headers for React CORS clearance
@@ -40,6 +36,7 @@ class HomeController {
 
         // Restrict communication exclusively to POST data streams
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
             echo json_encode(["status" => "error", "message" => "Invalid HTTP method channel."]);
             exit;
         }
@@ -52,12 +49,12 @@ class HomeController {
         $data = $payload['data'] ?? null;
 
         if (!$targetFile || !$data) {
+            http_response_code(400);
             echo json_encode(["status" => "error", "message" => "Incomplete request configuration parameters."]);
             exit;
         }
 
         // 🛡️ Security Whitelist: Map target references precisely to files inside public/data/
-        // ✅ UPDATED: Expanded with all new specific certification, service, and layout endpoints
         $allowedFiles = [
             'header_data.json'             => __DIR__ . '/../../public/data/header_data.json',
             'mandate_data.json'            => __DIR__ . '/../../public/data/mandate_data.json',
@@ -74,14 +71,13 @@ class HomeController {
 
         // 🔀 DETERMINISTIC DIRECTORY ROUTING GATE
         if (array_key_exists($targetFile, $allowedFiles)) {
-            // Match found inside hardcoded whitelist table matrix
             $destinationPath = $allowedFiles[$targetFile];
         } else if (strpos($targetFile, 'services_') === 0 && substr($targetFile, -5) === '.json') {
-            // 🚀 DYNAMIC ROUTE ALLOWED: Intercepts custom runtime creations matching prefix configurations
             // basename() filters out path traversal attacks like '../../' for server filesystem safety
             $safeCleanFilename = basename($targetFile); 
             $destinationPath = __DIR__ . '/../../public/data/' . $safeCleanFilename;
         } else {
+            http_response_code(403);
             echo json_encode(["status" => "error", "message" => "Access to specified layout target is restricted."]);
             exit;
         }
@@ -89,6 +85,7 @@ class HomeController {
         // 🟢 Guard logic specifically for header layout deep-merging
         if ($targetFile === 'header_data.json') {
             if (!file_exists($destinationPath)) {
+                http_response_code(404);
                 echo json_encode(["status" => "error", "message" => "Target header template file missing from file directory map."]);
                 exit;
             }
@@ -105,7 +102,6 @@ class HomeController {
             // 3. Move the combined dataset over to processing
             $finalData = $existingData;
         } else {
-            // Mandate, landing intro text, contact info, vision/mission, catalog, and payslips receive clean rewrites
             $finalData = $data;
         }
 
@@ -116,9 +112,9 @@ class HomeController {
         if (file_put_contents($destinationPath, $jsonString) !== false) {
             echo json_encode(["status" => "success", "message" => "Layout system configurations safely updated!"]);
         } else {
+            http_response_code(500);
             echo json_encode(["status" => "error", "message" => "Failed to write structural resource data onto disk. Verify folder write clearance."]);
         }
         exit;
     }
-    
-} // Ends the HomeController class container
+}

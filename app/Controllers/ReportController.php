@@ -3,15 +3,19 @@ namespace App\Controllers;
 
 use Core\Database;
 use Exception;
-use finfo; // 🌟 NEW: Ensure we can instantiate the File Information extension explicitly
+use finfo; // Ensure we can instantiate the File Information extension explicitly
 
 class ReportController {
     
     /**
      * 1. READ: Fetches all cataloged documents sorted by year and category priority
+     * 🔓 PUBLICLY ACCESSIBLE: Left open so users can read files freely on your frontend dashboard.
      */
     public function getReports() {
         header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET");
+        
         try {
             $db = Database::connect();
             
@@ -41,9 +45,18 @@ class ReportController {
 
     /**
      * 2. CREATE: Handles file upload validations, directory structure, and database insertion
+     * 🔒 AUTOMATICALLY PROTECTED: Intercepted and secured by the global Router engine for POST requests.
      */
     public function uploadReport() {
         header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: POST, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
+
         try {
             $title = $_POST['title'] ?? '';
             $year  = $_POST['year'] ?? date('Y');
@@ -52,8 +65,9 @@ class ReportController {
             // Strip any accidental non-numeric characters to prevent folder path exploits
             $year  = preg_replace('/[^0-9]/', '', $year);
 
-            // FIXED: Look for 'file' payload key to align perfectly with your React FormData hook
+            // Look for 'file' payload key to align perfectly with your React FormData hook
             if (empty($title) || !isset($_FILES['file'])) {
+                http_response_code(400);
                 echo json_encode(["status" => "error", "message" => "Missing required text fields or physical file attachment."]);
                 exit;
             }
@@ -62,16 +76,18 @@ class ReportController {
             
             // Basic error handling for native PHP upload restrictions
             if ($file['error'] !== UPLOAD_ERR_OK) {
+                http_response_code(400);
                 echo json_encode(["status" => "error", "message" => "PHP file upload error code: " . $file['error']]);
                 exit;
             }
 
-            // 🔒 NEW CRITICAL SECURITY LAYER: Intercept file binary and inspect actual content signatures
+            // Intercept file binary and inspect actual content signatures
             $finfoInstance = new finfo(FILEINFO_MIME_TYPE);
             $trueMimeType = $finfoInstance->file($file['tmp_name']);
 
             // Reject anything pretending to be a PDF that doesn't output standard headers
             if ($trueMimeType !== 'application/pdf') {
+                http_response_code(400);
                 echo json_encode([
                     "status" => "error", 
                     "message" => "Security Exception: Server-side file verification mismatch. Uploaded file is not a genuine PDF document."
@@ -137,15 +153,25 @@ class ReportController {
 
     /**
      * 3. DELETE: Wipes physical file asset from drive space, then purges SQL row reference mapping
+     * 🔒 AUTOMATICALLY PROTECTED: Intercepted and secured by the global Router engine for DELETE requests.
      */
     public function deleteReport() {
         header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: DELETE, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
+
         try {
             // Unpack native JSON input body stream delivered via JavaScript fetch context 
             $input = json_decode(file_get_contents('php://input'), true);
             $id = $input['id'] ?? null;
 
             if (!$id) {
+                http_response_code(400);
                 echo json_encode(["status" => "error", "message" => "No explicit record identity parsed for deletion loop."]);
                 exit;
             }
@@ -163,7 +189,7 @@ class ReportController {
                 $physicalDiskPath = __DIR__ . "/../../" . ltrim($cleanHref, '/');
                 
                 if (file_exists($physicalDiskPath)) {
-                    unlink($physicalDiskPath); // Erases physical PDF/Excel/Image asset from folder storage completely
+                    unlink($physicalDiskPath); // Erases physical PDF asset from folder storage completely
                 }
             }
 

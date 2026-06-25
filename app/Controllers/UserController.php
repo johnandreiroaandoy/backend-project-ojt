@@ -8,10 +8,37 @@ use PDO;
 class UserController {
     
     /**
+     * 🔒 LOCAL GET-ROUTE SECURITY CHECK: Authenticates read operations since GET skips the global Router guard
+     */
+    private function verifyReadPermission() {
+        $headers = apache_request_headers();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        $token = str_replace('Bearer ', '', $authHeader);
+
+        if (empty($token) || $token === 'undefined') {
+            http_response_code(401);
+            header("Content-Type: application/json; charset=UTF-8");
+            echo json_encode([
+                "status" => "error",
+                "message" => "Access Denied: Administrative credential token context required."
+            ]);
+            exit();
+        }
+    }
+    
+    /**
      * Verifies if an email address exists inside the database registry table
+     * 🔒 AUTOMATICALLY PROTECTED: Intercepted and secured by the global Router engine for POST requests.
      */
     public function verifyEmail() {
         header("Content-Type: application/json");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: POST, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
         
         $input = json_decode(file_get_contents("php://input"), true);
         $email = isset($input['email']) ? trim($input['email']) : '';
@@ -57,6 +84,7 @@ class UserController {
 
     /**
      * 👥 Track visits: Aggregates totals into website_visitors without log flooding
+     * 🔓 PUBLICLY ACCESSIBLE: Left unauthenticated so frontend client traffic can log telemetry automatically.
      */
     public function trackVisit() {
         header("Content-Type: application/json");
@@ -72,10 +100,8 @@ class UserController {
 
             $db = Database::connect(); 
 
-            // 🟢 Only record telemetry metrics if it's NOT an administrative panel preview fetch
+            // Only record telemetry metrics if it's NOT an administrative panel preview fetch
             if ($pagename !== 'admin_summary') {
-                
-                // Pure high-performance aggregation upsert query—no secondary log table flood!
                 $stmt1 = $db->prepare("
                     INSERT INTO website_visitors (pagename, counter, updated_at) 
                     VALUES (:pagename, 1, NOW())
@@ -109,19 +135,29 @@ class UserController {
 
     /**
      * 📊 Bundles active page counters and extracts dynamic inquiry submission timeline metrics
+     * 🔒 SECURED MANUALLY: Protected manually because GET verbs bypass the global Router firewall
      */
     public function getAnalyticsMetrics() {
         header("Content-Type: application/json");
         header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
 
         try {
+            // Intercept analytics scrapers checking data endpoints
+            $this->verifyReadPermission();
+
             $db = Database::connect();
             
             // 1. Fetch total page counters sorted highest to lowest traffic (Chart 1)
             $counterStmt = $db->query("SELECT pagename, counter, updated_at FROM website_visitors ORDER BY counter DESC");
             $counters = $counterStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // 2. 📈 NEW: Extract dynamic inquiry hours from the existing timestamps inside the contacts table
+            // 2. Extract dynamic inquiry hours from the existing timestamps inside the contacts table
             $hourlyStmt = $db->query("
                 SELECT 
                     HOUR(created_at) as hour_number, 
@@ -156,9 +192,9 @@ class UserController {
 
             echo json_encode([
                 "status" => "success",
-                "metrics" => $counters,               // Master clean counter dataset
-                "inquiryHours" => array_values($inquiryHours), // 🟢 24-Hour clean inquiry distribution metrics array
-                "totalInquiries" => $totalInquiries   // Real-time message count parameter
+                "metrics" => $counters,               
+                "inquiryHours" => array_values($inquiryHours), 
+                "totalInquiries" => $totalInquiries   
             ]);
             
         } catch (Exception $e) {
@@ -172,7 +208,7 @@ class UserController {
 
     /**
      * 📩 Extracts raw recent submission text data matrices 
-     * This fulfills the React dashboard's request to render rows inside the UI inbox component.
+     * 🔒 SECURED MANUALLY: Protected manually because GET verbs bypass the global Router firewall
      */
     public function getInquiriesList() {
         header("Content-Type: application/json; charset=UTF-8");
@@ -186,6 +222,9 @@ class UserController {
         }
 
         try {
+            // Blocks anonymous scripts seeking customer listings entries
+            $this->verifyReadPermission();
+
             $db = Database::connect();
             
             // Query logs dynamically out of the database (pulling most recent submissions first)

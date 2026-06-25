@@ -21,7 +21,10 @@ function loadEnv($path) {
 }
 loadEnv(__DIR__ . '/../.env');
 
-// 1. INSTANT CORS PREFLIGHT GREEN LIGHT
+// =====================================================================
+// 1. GLOBAL CORS ENGINE & PREFLIGHT INTERCEPTOR
+// (Handles all cross-origin validation globally so controllers don't have to)
+// =====================================================================
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -41,13 +44,13 @@ $router = new Router();
 $router->add('GET', '/', 'HomeController@index');
 
 // 🟢 ACTIVE API ENDPOINT REGISTRY
-$router->add('GET', '/api/reports', 'ReportController@getReports');
-$router->add('POST', '/api/reports/upload', 'ReportController@uploadReport');
+$router->add('GET',    '/api/reports',        'ReportController@getReports');
+$router->add('POST',   '/api/reports/upload', 'ReportController@uploadReport');
 $router->add('DELETE', '/api/reports/delete', 'ReportController@deleteReport');
 
-$router->add('POST', '/api/contact', 'ContactController@handleContactSubmit');
-$router->add('POST', '/api/verify-email', 'UserController@verifyEmail');
-$router->add('POST', '/api/content/save-config', 'HomeController@saveConfig');
+$router->add('POST',   '/api/contact',             'ContactController@handleContactSubmit');
+$router->add('POST',   '/api/verify-email',        'UserController@verifyEmail');
+$router->add('POST',   '/api/content/save-config', 'HomeController@saveConfig');
 
 // 👥 Analytics background session pipeline tracker endpoint
 $router->add('GET', '/api/analytics/track-visit', 'UserController@trackVisit');
@@ -55,14 +58,13 @@ $router->add('GET', '/api/analytics/track-visit', 'UserController@trackVisit');
 // 📊 Endpoint to fetch itemized page view metrics rows for the React dashboard layout
 $router->add('GET', '/api/analytics/metrics', 'UserController@getAnalyticsMetrics');
 
-// ✅ FIXED: Added registry mapping endpoint to clear your front-end 404 handler exception
+// ✅ FIXED & CLEANED: Consolidated to fetch from your locked-down UserController
 $router->add('GET', '/api/analytics/inquiries-list', 'UserController@getInquiriesList');
+
 
 // =====================================================================
 // 2. RESILIENT SUB-FOLDER STRIPPER & NORMALIZER FOR WINDOWS/XAMPP
 // =====================================================================
-
-// Extract the clean structural path from the incoming request URL string
 $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Identify the execution directory path string and force forward slashes
@@ -85,15 +87,14 @@ if (strpos($requestUri, $projectRoot) === 0) {
 // Ensure the final processed routing path always begins with a single forward slash
 $requestUri = '/' . ltrim($requestUri, '/');
 
+
 // =====================================================================
 // 🚀 3. REAL-TIME STATIC ASSET CHECK (BYPASS THE ROUTER)
 // =====================================================================
-// Strip a leading /public text block if it managed to creep into the normalized URI string
 $cleanFileUri = preg_replace('/^\/public/', '', $requestUri);
 $physicalFilePath = __DIR__ . $cleanFileUri;
 
 if (is_file($physicalFilePath)) {
-    // Determine the Content-Type header on the fly to prevent browser rendering drops
     $extension = strtolower(pathinfo($physicalFilePath, PATHINFO_EXTENSION));
     switch ($extension) {
         case 'pdf':  header("Content-Type: application/pdf"); break;
@@ -103,12 +104,13 @@ if (is_file($physicalFilePath)) {
         case 'json': header("Content-Type: application/json"); break;
     }
     
-    // Dump the raw file binary data downstream to the browser and terminate process
     readfile($physicalFilePath);
     exit;
 }
 
+
 // =====================================================================
-// DISPATCH REQUEST TO YOUR FRAMEWORK ROUTER
+// ⚡ 4. DISPATCH REQUEST TO YOUR FRAMEWORK ROUTER
+// (Your Router engine handles the state-changing auth gate before executing)
 // =====================================================================
 $router->dispatch($requestUri, $_SERVER['REQUEST_METHOD']);
