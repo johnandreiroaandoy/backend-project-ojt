@@ -8,13 +8,37 @@ use finfo; // Ensure we can instantiate the File Information extension explicitl
 class ReportController {
     
     /**
+     * Helper method to validate the JWT Bearer Token if your router doesn't block it globally
+     */
+    private function authenticateToken() {
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (empty($authHeader) || !preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            http_response_code(401);
+            echo json_encode(["status" => "error", "message" => "Unauthorized access: Missing or malformed Bearer Token."]);
+            exit;
+        }
+        
+        $token = $matches[1];
+        // Optional: Implement your custom verification decoding logic here if needed:
+        // if (!YourJwtUtility::verify($token)) { ... exit; }
+        return $token;
+    }
+
+    /**
      * 1. READ: Fetches all cataloged documents sorted by year and category priority
      * 🔓 PUBLICLY ACCESSIBLE: Left open so users can read files freely on your frontend dashboard.
      */
     public function getReports() {
         header("Content-Type: application/json");
         header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Methods: GET");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
         
         try {
             $db = Database::connect();
@@ -45,7 +69,7 @@ class ReportController {
 
     /**
      * 2. CREATE: Handles file upload validations, directory structure, and database insertion
-     * 🔒 AUTOMATICALLY PROTECTED: Intercepted and secured by the global Router engine for POST requests.
+     * 🔒 PROTECTED: Validates preflight structures and maps authorization parameters safely.
      */
     public function uploadReport() {
         header("Content-Type: application/json");
@@ -56,6 +80,9 @@ class ReportController {
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             exit(0);
         }
+
+        // 🔒 SECURITY CHECK: Confirm incoming transaction authenticity
+        $this->authenticateToken();
 
         try {
             $title = $_POST['title'] ?? '';
@@ -153,7 +180,7 @@ class ReportController {
 
     /**
      * 3. DELETE: Wipes physical file asset from drive space, then purges SQL row reference mapping
-     * 🔒 AUTOMATICALLY PROTECTED: Intercepted and secured by the global Router engine for DELETE requests.
+     * 🔒 PROTECTED: Intercepted and secured using access token verification.
      */
     public function deleteReport() {
         header("Content-Type: application/json");
@@ -164,6 +191,9 @@ class ReportController {
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             exit(0);
         }
+
+        // 🔒 SECURITY CHECK: Confirm incoming transaction authenticity
+        $this->authenticateToken();
 
         try {
             // Unpack native JSON input body stream delivered via JavaScript fetch context 

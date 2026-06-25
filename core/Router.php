@@ -33,10 +33,15 @@ class Router {
      * 🔒 Centralized Security Engine: Validates admin bearer tokens before resource routing
      */
     private function verifyGlobalAdminSession() {
-        $headers = apache_request_headers();
+        // Fallback resolution sequence targeting native Apache functions alongside global server variables
+        $headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
         
-        // Normalize capitalization discrepancies from diverse clients
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        // Normalize capitalization discrepancies from diverse clients + check global system backups
+        $authHeader = $headers['Authorization'] ?? 
+                      $headers['authorization'] ?? 
+                      $_SERVER['HTTP_AUTHORIZATION'] ?? 
+                      $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+                      
         $token = str_replace('Bearer ', '', $authHeader);
 
         if (empty($token) || $token === 'undefined') {
@@ -55,6 +60,17 @@ class Router {
      */
     public function dispatch(string $uri, string $method) {
         
+        $method = strtoupper($method);
+
+        // 🛡️ GLOBAL CORS PREFLIGHT INTERCEPTOR: Immediately green-light browser OPTIONS inquiries
+        if ($method === 'OPTIONS') {
+            header("Access-Control-Allow-Origin: *");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization");
+            header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
+            http_response_code(200);
+            exit(0);
+        }
+
         // Extract only the textual directory path from a complete URL string, stripping out trailing parameters (?id=1)
         $url = parse_url($uri, PHP_URL_PATH);
         
@@ -72,7 +88,6 @@ class Router {
         }
 
         // 🛡️ GLOBAL METHOD INTERCEPTOR: Lock down data adjustments
-        $method = strtoupper($method);
         $destructiveMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
         
         if (in_array($method, $destructiveMethods)) {
