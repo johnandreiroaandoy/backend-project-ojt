@@ -54,9 +54,11 @@
         "aria": "Visit our official Facebook page"
       },
       {
-        "type": "icon",
+        "type": "link",
         "src": "X.png",
-        "alt": "Twitter"
+        "alt": "Twitter",
+        "href": "https://x.com/davaocitygov/",
+        "aria": "Visit our official Twitter/X page"
       }
     ]
   }
