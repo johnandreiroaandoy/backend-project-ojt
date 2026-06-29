@@ -58,8 +58,14 @@ $router->add('GET', '/api/analytics/track-visit', 'UserController@trackVisit');
 // 📊 Endpoint to fetch itemized page view metrics rows for the React dashboard layout
 $router->add('GET', '/api/analytics/metrics', 'UserController@getAnalyticsMetrics');
 
-// ✅ FIXED & CLEANED: Consolidated to fetch from your locked-down UserController
-$router->add('GET', '/api/analytics/inquiries-list', 'UserController@getInquiriesList');
+// ✅ UPDATED ROUTE: Changed from '/api/analytics/inquiries-list' to match React frontend call exactly
+$router->add('GET', '/api/analytics/inquiries', 'UserController@getInquiriesList');
+
+// ✨ Real-time trace activity log endpoint map
+$router->add('GET', '/api/analytics/activity-logs', 'UserController@getVisitorActivityLogs');
+
+// 📈 NEW GRAPH TIMELINE ENDPOINT: Serves data matrices grouped by day to Recharts components
+$router->add('GET', '/api/analytics/chart-timeline', 'UserController@getVisitorChartData');
 
 
 // =====================================================================

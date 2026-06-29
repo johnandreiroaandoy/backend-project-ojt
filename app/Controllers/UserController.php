@@ -11,8 +11,14 @@ class UserController {
      * 🔒 LOCAL GET-ROUTE SECURITY CHECK: Authenticates read operations since GET skips the global Router guard
      */
     private function verifyReadPermission() {
-        $headers = apache_request_headers();
-        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        // Fallback sequence to retrieve headers accurately across both Apache and standard environments
+        $headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
+        
+        $authHeader = $headers['Authorization'] ?? 
+                      $headers['authorization'] ?? 
+                      $_SERVER['HTTP_AUTHORIZATION'] ?? 
+                      $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
+                      
         $token = str_replace('Bearer ', '', $authHeader);
 
         if (empty($token) || $token === 'undefined') {
@@ -102,6 +108,7 @@ class UserController {
 
             // Only record telemetry metrics if it's NOT an administrative panel preview fetch
             if ($pagename !== 'admin_summary') {
+                // 1. Maintain aggregated metrics counters layout frames
                 $stmt1 = $db->prepare("
                     INSERT INTO website_visitors (pagename, counter, updated_at) 
                     VALUES (:pagename, 1, NOW())
@@ -110,6 +117,13 @@ class UserController {
                         updated_at = NOW()
                 ");
                 $stmt1->execute([':pagename' => $pagename]);
+
+                // ✨ 2. NEW LOG HOOK: Append a sequential time entry trace record directly into your visitor_activity_logs schema matrix
+                $stmtLog = $db->prepare("
+                    INSERT INTO visitor_activity_logs (pagename, accessed_at) 
+                    VALUES (:pagename, NOW())
+                ");
+                $stmtLog->execute([':pagename' => $pagename]);
             }
 
             // Gather total collective accumulated views from the master rows
@@ -231,9 +245,10 @@ class UserController {
             $stmt = $db->query("SELECT id, name, email, message, created_at FROM contacts ORDER BY id DESC LIMIT 100");
             $inquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // ✅ FIXED & ALIGNED KEY: Returns "inquiries" to match the frontend expectations perfectly
             echo json_encode([
                 "status" => "success",
-                "inquiriesList" => $inquiries
+                "inquiries" => $inquiries
             ]);
             
         } catch (Exception $e) {
@@ -241,6 +256,100 @@ class UserController {
             echo json_encode([
                 "status" => "error",
                 "message" => "Failed to fetch raw inquiries matrix data: " . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * 📜 READ: Fetches the raw real-time row records from the visitor activity table
+     * 🔒 SECURED MANUALLY: Protected manually via local validation because GET operations bypass the global Router firewall
+     */
+    public function getVisitorActivityLogs() {
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
+
+        try {
+            // Check for valid Bearer token verification sequence
+            $this->verifyReadPermission();
+
+            $db = Database::connect();
+            
+            // Query the most recent 150 page hits from your visitor log database structure
+            $stmt = $db->query("
+                SELECT id, pagename, accessed_at 
+                FROM visitor_activity_logs 
+                ORDER BY id DESC 
+                LIMIT 150
+            ");
+            $activityLogs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                "status" => "success",
+                "activityLogs" => $activityLogs
+            ]);
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                "status" => "error",
+                "message" => "Failed to fetch raw visitor activity tracking entries: " . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * 📈 NEW: Generates timeline data metrics for the Recharts graph visualization
+     * 🔒 SECURED MANUALLY: Protected via local admin validation token check
+     */
+    public function getVisitorChartData() {
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            exit(0);
+        }
+
+        try {
+            $this->verifyReadPermission();
+            $db = Database::connect();
+            
+            // Group raw logs chronologically by calendar day over the last 30 active days
+            $stmt = $db->query("
+                SELECT DATE(accessed_at) as log_date, COUNT(*) as visit_count 
+                FROM visitor_activity_logs 
+                GROUP BY DATE(accessed_at) 
+                ORDER BY log_date ASC 
+                LIMIT 30
+            ");
+            $rawTimeline = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Re-format to match clean string keys readable by frontend components
+            $chartData = [];
+            foreach ($rawTimeline as $row) {
+                $chartData[] = [
+                    "date" => date("M d", strtotime($row['log_date'])), // Translates to clean labels like "Jun 29"
+                    "visits" => (int)$row['visit_count']
+                ];
+            }
+
+            echo json_encode([
+                "status" => "success",
+                "timelineData" => $chartData
+            ]);
+            
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                "status" => "error",
+                "message" => "Failed to build chart visual matrices: " . $e->getMessage()
             ]);
         }
     }
