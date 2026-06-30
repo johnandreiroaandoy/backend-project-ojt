@@ -61,7 +61,8 @@ class UserController {
         try {
             $db = Database::connect();
             
-            $stmt = $db->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+            // Note: Keeping this query targeting contacts since no users table exists
+            $stmt = $db->prepare("SELECT COUNT(*) FROM contacts WHERE email = ?");
             $stmt->execute([$email]);
             $emailExists = $stmt->fetchColumn() > 0;
 
@@ -89,26 +90,69 @@ class UserController {
     }
 
     /**
-     * 👥 Track visits: Aggregates totals into website_visitors without log flooding
+     * 👥 Track visits: Aggregates totals into website_visitors with enhanced telemetry extraction
      * 🔓 PUBLICLY ACCESSIBLE: Left unauthenticated so frontend client traffic can log telemetry automatically.
      */
     public function trackVisit() {
         header("Content-Type: application/json");
         header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Headers: Content-Type");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
         try {
             $pagename = isset($_GET['pagename']) ? trim($_GET['pagename']) : 'root';
-
             if (empty($pagename)) {
                 $pagename = 'root';
             }
 
             $db = Database::connect(); 
 
-            // Only record telemetry metrics if it's NOT an administrative panel preview fetch
             if ($pagename !== 'admin_summary') {
-                // 1. Maintain aggregated metrics counters layout frames
+                
+                // 1. Identify IP Address securely (accounting for potential reverse proxy load balancers)
+                $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
+                if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                    $ipAddress = trim(explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]);
+                }
+                if ($ipAddress === '::1') {
+                    $ipAddress = '127.0.0.1';
+                }
+
+                // 2. Sniff System details using the HTTP User-Agent string
+                $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                
+                // Determine device category framing matrix
+                $deviceType = 'Desktop';
+                if (preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $userAgent)) {
+                    $deviceType = 'Mobile';
+                } elseif (preg_match('/(tablet|ipad|playbook|silk)|(android(?!.*mobile))/i', $userAgent)) {
+                    $deviceType = 'Tablet';
+                }
+
+                /* ==========================================================
+                    🛡️ FIXED BROWSER SNIFFER MATRIX ORDER
+                ========================================================== */
+                $browser = 'Unknown';
+                if (preg_match('/MSIE/i', $userAgent) && !preg_match('/Opera/i', $userAgent)) { 
+                    $browser = 'MSIE'; 
+                } 
+                // 🟢 Check Edge / Edg FIRST because Chromium Edge includes "Chrome" in its header string
+                elseif (preg_match('/Edg/i', $userAgent) || preg_match('/Edge/i', $userAgent)) { 
+                    $browser = 'Microsoft Edge'; 
+                }
+                elseif (preg_match('/Firefox/i', $userAgent)) { 
+                    $browser = 'Firefox'; 
+                } 
+                elseif (preg_match('/Chrome/i', $userAgent)) { 
+                    $browser = 'Chrome'; 
+                } 
+                elseif (preg_match('/Safari/i', $userAgent)) { 
+                    $browser = 'Safari'; 
+                } 
+                elseif (preg_match('/Opera/i', $userAgent)) { 
+                    $browser = 'Opera'; 
+                }
+
+                // 3. Maintain aggregated tracking totals
                 $stmt1 = $db->prepare("
                     INSERT INTO website_visitors (pagename, counter, updated_at) 
                     VALUES (:pagename, 1, NOW())
@@ -118,18 +162,22 @@ class UserController {
                 ");
                 $stmt1->execute([':pagename' => $pagename]);
 
-                // ✨ 2. NEW LOG HOOK: Append a sequential time entry trace record directly into your visitor_activity_logs schema matrix
+                // 4. CLEANED LOG HOOK: Append metadata parameters safely without user_id references
                 $stmtLog = $db->prepare("
-                    INSERT INTO visitor_activity_logs (pagename, accessed_at) 
-                    VALUES (:pagename, NOW())
+                    INSERT INTO visitor_activity_logs (pagename, ip_address, browser, device_type, accessed_at) 
+                    VALUES (:pagename, :ip_address, :browser, :device_type, NOW())
                 ");
-                $stmtLog->execute([':pagename' => $pagename]);
+                $stmtLog->execute([
+                    ':pagename'    => $pagename,
+                    ':ip_address'  => $ipAddress,
+                    ':browser'     => $browser,
+                    ':device_type' => $deviceType
+                ]);
             }
 
             // Gather total collective accumulated views from the master rows
             $countStmt = $db->query("SELECT SUM(counter) as total_visitors FROM website_visitors");
             $result = $countStmt->fetch(PDO::FETCH_ASSOC);
-            
             $totalViews = isset($result['total_visitors']) ? (int)$result['total_visitors'] : 0;
 
             echo json_encode([
@@ -148,8 +196,59 @@ class UserController {
     }
 
     /**
+     * 📊 FETCH: Generates a spreadsheet-style matrix of page hits per unique user IP
+     */
+    public function getUserPageMatrix() {
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, OPTIONS");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { exit(0); }
+
+        try {
+            $this->verifyReadPermission();
+            $db = Database::connect();
+            
+            // This query pivots dynamic raw log rows into individual distinct page count columns
+            $stmt = $db->query("
+                SELECT 
+                    ip_address,
+                    MAX(browser) AS browser,
+                    MAX(device_type) AS device_type,
+                    MAX(accessed_at) AS last_active,
+                    
+                    -- Individual metric column tracking hits per target page
+                    SUM(CASE WHEN pagename = 'root' OR pagename = 'home' THEN 1 ELSE 0 END) AS root_hits,
+                    SUM(CASE WHEN pagename = 'mandates' THEN 1 ELSE 0 END) AS mandates_hits,
+                    SUM(CASE WHEN pagename = 'services' THEN 1 ELSE 0 END) AS services_hits,
+                    SUM(CASE WHEN pagename = 'reports' THEN 1 ELSE 0 END) AS reports_hits,
+                    SUM(CASE WHEN pagename = 'contact' THEN 1 ELSE 0 END) AS contact_hits,
+                    
+                    -- Combined total of all interactions
+                    COUNT(*) AS total_combined_hits
+                FROM visitor_activity_logs
+                GROUP BY ip_address
+                ORDER BY total_combined_hits DESC
+                LIMIT 150
+            ");
+            $matrixData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            echo json_encode([
+                "status" => "success",
+                "userMatrix" => $matrixData
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                "status" => "error",
+                "message" => "Failed to fetch aggregated user matrix metrics: " . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
      * 📊 Bundles active page counters and extracts dynamic inquiry submission timeline metrics
-     * 🔒 SECURED MANUALLY: Protected manually because GET verbs bypass the global Router firewall
      */
     public function getAnalyticsMetrics() {
         header("Content-Type: application/json");
@@ -162,16 +261,12 @@ class UserController {
         }
 
         try {
-            // Intercept analytics scrapers checking data endpoints
             $this->verifyReadPermission();
-
             $db = Database::connect();
             
-            // 1. Fetch total page counters sorted highest to lowest traffic (Chart 1)
             $counterStmt = $db->query("SELECT pagename, counter, updated_at FROM website_visitors ORDER BY counter DESC");
             $counters = $counterStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // 2. Extract dynamic inquiry hours from the existing timestamps inside the contacts table
             $hourlyStmt = $db->query("
                 SELECT 
                     HOUR(created_at) as hour_number, 
@@ -182,7 +277,6 @@ class UserController {
             ");
             $rawHourlyData = $hourlyStmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Normalize the timeline array into a strict 24-point array matrix (Hours 0-23) so Recharts lines don't break
             $inquiryHours = [];
             for ($h = 0; $h < 24; $h++) {
                 $inquiryHours[$h] = [
@@ -191,7 +285,6 @@ class UserController {
                 ];
             }
 
-            // Merge dynamic grouping data onto the 24-hour timeline skeleton structure
             foreach ($rawHourlyData as $row) {
                 $hourIndex = (int)$row['hour_number'];
                 if ($hourIndex >= 0 && $hourIndex < 24) {
@@ -199,7 +292,6 @@ class UserController {
                 }
             }
 
-            // 3. Query total records contained within the contacts table database structure
             $contactStmt = $db->query("SELECT COUNT(*) as total_messages FROM contacts");
             $contactResult = $contactStmt->fetch(PDO::FETCH_ASSOC);
             $totalInquiries = isset($contactResult['total_messages']) ? (int)$contactResult['total_messages'] : 0;
@@ -222,7 +314,6 @@ class UserController {
 
     /**
      * 📩 Extracts raw recent submission text data matrices 
-     * 🔒 SECURED MANUALLY: Protected manually because GET verbs bypass the global Router firewall
      */
     public function getInquiriesList() {
         header("Content-Type: application/json; charset=UTF-8");
@@ -236,16 +327,12 @@ class UserController {
         }
 
         try {
-            // Blocks anonymous scripts seeking customer listings entries
             $this->verifyReadPermission();
-
             $db = Database::connect();
             
-            // Query logs dynamically out of the database (pulling most recent submissions first)
             $stmt = $db->query("SELECT id, name, email, message, created_at FROM contacts ORDER BY id DESC LIMIT 100");
             $inquiries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // ✅ FIXED & ALIGNED KEY: Returns "inquiries" to match the frontend expectations perfectly
             echo json_encode([
                 "status" => "success",
                 "inquiries" => $inquiries
@@ -261,8 +348,7 @@ class UserController {
     }
 
     /**
-     * 📜 READ: Fetches the raw real-time row records from the visitor activity table
-     * 🔒 SECURED MANUALLY: Protected manually via local validation because GET operations bypass the global Router firewall
+     * 📜 READ: Fetches row records from the visitor activity table (Cleaned from relational tables)
      */
     public function getVisitorActivityLogs() {
         header("Content-Type: application/json; charset=UTF-8");
@@ -275,15 +361,19 @@ class UserController {
         }
 
         try {
-            // Check for valid Bearer token verification sequence
             $this->verifyReadPermission();
-
             $db = Database::connect();
             
-            // Query the most recent 150 page hits from your visitor log database structure
+            // DIRECT SELECTION: Pulls tracking rows neatly from visitor_activity_logs without table joins
             $stmt = $db->query("
-                SELECT id, pagename, accessed_at 
-                FROM visitor_activity_logs 
+                SELECT 
+                    id, 
+                    pagename, 
+                    ip_address,
+                    browser,
+                    device_type,
+                    accessed_at 
+                FROM visitor_activity_logs
                 ORDER BY id DESC 
                 LIMIT 150
             ");
@@ -304,8 +394,7 @@ class UserController {
     }
 
     /**
-     * 📈 NEW: Generates timeline data metrics for the Recharts graph visualization
-     * 🔒 SECURED MANUALLY: Protected via local admin validation token check
+     * 📈 Generates timeline data metrics for the Recharts graph visualization
      */
     public function getVisitorChartData() {
         header("Content-Type: application/json; charset=UTF-8");
@@ -321,7 +410,6 @@ class UserController {
             $this->verifyReadPermission();
             $db = Database::connect();
             
-            // Group raw logs chronologically by calendar day over the last 30 active days
             $stmt = $db->query("
                 SELECT DATE(accessed_at) as log_date, COUNT(*) as visit_count 
                 FROM visitor_activity_logs 
@@ -331,11 +419,10 @@ class UserController {
             ");
             $rawTimeline = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Re-format to match clean string keys readable by frontend components
             $chartData = [];
             foreach ($rawTimeline as $row) {
                 $chartData[] = [
-                    "date" => date("M d", strtotime($row['log_date'])), // Translates to clean labels like "Jun 29"
+                    "date" => date("M d", strtotime($row['log_date'])), 
                     "visits" => (int)$row['visit_count']
                 ];
             }
