@@ -27,7 +27,7 @@ loadEnv(__DIR__ . '/../.env');
 // =====================================================================
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Device-Model, X-Client-Device-Model, X-Client-Platform, X-Client-Is-Mobile, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -63,6 +63,9 @@ $router->add('GET', '/api/analytics/inquiries', 'UserController@getInquiriesList
 
 // ✨ Real-time trace activity log endpoint map
 $router->add('GET', '/api/analytics/activity-logs', 'UserController@getVisitorActivityLogs');
+
+// 👥 Paginated per-IP visitor matrix endpoint map
+$router->add('GET', '/api/analytics/user-matrix', 'UserController@getUserPageMatrix');
 
 // 📈 NEW GRAPH TIMELINE ENDPOINT: Serves data matrices grouped by day to Recharts components
 $router->add('GET', '/api/analytics/chart-timeline', 'UserController@getVisitorChartData');
