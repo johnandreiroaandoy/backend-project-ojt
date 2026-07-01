@@ -1,8 +1,8 @@
 # 🟢 1. INJECT CORS HEADERS FOR ALL REQUESTS (INCLUDING STATIC JSON FILES)
 <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "http://localhost:5173"
+    Header set Access-Control-Allow-Origin "*"
     Header set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
-    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-Device-Model, X-Client-Device-Model, X-Client-Platform, X-Client-Is-Mobile, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version"
 </IfModule>
 
 # 2. RUN YOUR MVC ROUTING RULES

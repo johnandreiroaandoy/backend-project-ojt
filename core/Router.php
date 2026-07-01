@@ -65,7 +65,7 @@ class Router {
         // 🛡️ GLOBAL CORS PREFLIGHT INTERCEPTOR: Immediately green-light browser OPTIONS inquiries
         if ($method === 'OPTIONS') {
             header("Access-Control-Allow-Origin: *");
-            header("Access-Control-Allow-Headers: Content-Type, Authorization");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Device-Model, X-Client-Device-Model, X-Client-Platform, X-Client-Is-Mobile, Sec-CH-UA-Mobile, Sec-CH-UA-Model, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version");
             header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
             http_response_code(200);
             exit(0);
